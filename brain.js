@@ -1,59 +1,73 @@
-//una unica neurona con 2 entradas
+class Neuron {
+    constructor(input1, input2, target) {
+        this.guess = false;
 
-var v1;
-var v2;
+        this.i1 = input1;
+        this.i2 = input2;
+        this.target = target;
 
-var w1 = 1;
-var w2 = 1;
-var b = 0;
+        this._g_err_o;
+        this._g_o_pondered;
 
-const selection = 0.5;
+        this._w1 = Math.random();
+        this._g_pondered_w1;
+        this._g_w1;
 
-var target = true;
-var activated_r;
+        this._w2 = Math.random();
+        this._g_pondered_w2;
+        this._g_w2;
 
-function sinapsis(a, b) {
-    let s1 = a * w1;
-    let s2 = b * w2;
+        this._b = 1;
 
-    ponderacion(s1,s2);
-}
-
-function ponderacion(s1, s2) {
-    v1 = s1;
-    v2 = s2;
-
-    let f = s1 + s2 + b;
-
-    activacion(f);
-}
-
-function activacion(y) {
-    y = 1 / (1 + (Math.pow(Math.E, -y)));
-
-    result(y);
-}
-
-function result(y) {
-    let final;
-    activated_r = y;
-
-    activated_r >= selection ? final = true : final = false;
-
-    if (target == "na") {
-        console.log('Guessed result: ' + final);
-    } else {
-        final == target ? console.log(final) : backpropagation(activated_r);
+        this._pondered;
+        this._o;
+        this._err;
     }
-}
 
-function backpropagation(a) {
-    if (target) { //needs to ve false
-        b += activated_r;
-        sinapsis(v1, v2);
-    } else { //needs to be true
-        b -= activated_r;
-        sinapsis(v1, v2);
+    input(input1, input2, target) {
+        this.i1 = input1;
+        this.i2 = input2;
+        this.target = target;
     }
-    console.log('fixed');
+
+    dendrites() { //ponderes the inputs with the weights
+        this._pondered = (this.i1 * this._w1) + (this.i2 * this._w2) + this._b;
+        this.soma();
+        return;
+    }
+
+    soma() { //applyes the activation function of sigmoid
+        this._o = 1/(1 + (Math.pow(Math.E, -this._pondered)));
+        this.axon();
+        return;
+    }
+
+    axon(){ //prints the output and calculates the total error
+        this._err = 1/2 * Math.pow(this.target - this._o, 2);
+        if (this.guess) {
+            console.log(this._o);
+        } else {
+            if (this._err > 0.1) {
+                this.backpropagation();
+                return;
+            } else {
+                console.log(this._o);
+            }
+        }
+    }
+
+    backpropagation() {
+        this._g_err_o = -(this.target - this._o);
+        this._g_o_pondered = this._o * (1 - this._o);
+        this._g_pondered_w1 = this.i1;
+        this._g_pondered_w2 = this.i2;
+
+        this._g_w1 = this._g_err_o * this._g_o_pondered * this._g_pondered_w1;
+        this._g_w2 = this._g_err_o * this._g_o_pondered * this._g_pondered_w2;
+
+        this._w1 = this._w1 - 0.5 * this._g_w1;
+        this._w2 = this._w2 - 0.5 * this._g_w2;
+        this.dendrites();
+        return;
+    }
 }
