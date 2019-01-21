@@ -5,7 +5,7 @@ class Neuron {
         this.weigths = [];
         this.net = 0;
         this.out = 0;
-        //this.bias = 0;
+        this.bias = -2; //can be modified
 
         for (let i = 0; i < inputs; i++) {
             this.weigths[i] = Math.random();
@@ -22,20 +22,21 @@ class Neuron {
         for (let i = 0; i < this.inputs.length; i++) {
             this.net = this.net + (this.inputs[i] * this.weigths[i]);
         }
-        //this.net += this.bias;
+        this.net += this.bias;
 
         //Passing the sigmoid activation function to the weighted average
         this.out = 1 / (1 + (Math.pow(Math.E, 0 - this.net)));
+
         return this.out;
     }
 }
 //-------------------------------------------------------------------------------------------------------------------------
 
-
 class Network {
     constructor(layer, inputs) { // layer as ana rray, inputs as number of inputs
-        this.ERROR_MARGIN = 0.5;
-        this.LEARN_RATE = 1;
+        this.ERROR_MARGIN = 0.001;
+        this.LEARN_RATE = 0.3;
+        this.guest = false;
 
         this.netOut = 0; //final output of the network
         this.netErr = 0; //total error of the network
@@ -51,10 +52,6 @@ class Network {
             }
         }
         //console.log(this.layer);
-    }
-
-    memory() {
-        
     }
 
     process(inputs, target) {
@@ -79,11 +76,15 @@ class Network {
             }
         }
 
-        this.netErr = (Math.pow(this.target - this.netOut, 2)) / 2; // COST FUNCTION
-        console.log(this.netOut);
-        if (this.netErr > this.ERROR_MARGIN) {
+        this.netErr = (1/2) * Math.pow(this.target - this.netOut, 2); // COST FUNCTION
+        //console.log(this.netOut);
+        if (this.netErr > this.ERROR_MARGIN && this.netErr != NaN && this.guest == false) {
             //console.log(`error de la red: ${this.netErr}`);
             this.backpropagation();
+            return;
+        } else {
+            console.log(this.netOut);
+            this.memory();
         }
     }
 
@@ -103,7 +104,6 @@ class Network {
                         //console.log(`modificanco del peso ${w} de la neurona ${c} de la capa ${i}: ${this.out[i-1][w]}`);
                         this.layer[i][c].weigths[w] -= this.LEARN_RATE * gradient;
                     }
-                    //this.layer[i][c].bias -= this.LEARN_RATE * neuronErr;
 
                 } else if (i == 0) {
                     //primera capa, el input de esta es el input original
@@ -137,15 +137,9 @@ class Network {
             }
         }
         this.process(this.inputs, this.target);
+        return;
     }
 }
 
-
-
-
-let lay = [6,6,1];
-let ins = [1,1];
-//for debug
-let net = new Network(lay, 2);
-//console.clear();
-//net.process(ins, 0);
+let lay = [3,1]; //[nodes_L0, nodes_L1]
+let net = new Network(lay, 20);
