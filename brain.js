@@ -35,7 +35,7 @@ class Network {
     constructor(layer, inputs) { // layer as an array, inputs as number of inputs
         this.ERROR_MARGIN = 0.0001;
         this.LEARN_RATE = 0.03;
-        this.ITERATIONS = 10000;
+        this.ITERATIONS = 100000;
 
         this.netOut = 0; //final output of the network
         this.netErr = 0; //total error of the network
@@ -144,5 +144,18 @@ class Network {
     }
 }
 
+// JUST FOR EXAMPLE
 let lay = [3,6,1]; //[nodes_L0, nodes_L1]
 let net = new Network(lay, 2);
+
+let train = [
+    [1,1],
+    [1,0],
+    [0,1],
+    [0,0]
+];
+let targets = [0,1,1,0];
+
+net.train(train, targets);
+
+//net.process(arr_of_inputs); for asking data
