@@ -1,0 +1,50 @@
+<html>
+<head>
+</head>
+<body>
+    <table id="table">
+        <tbody id="tbody">
+        <tr>
+            <td>
+                Number of layers: <br>
+                <input id="no_inputs" type="text" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button id="next" onclick="setNodes()">Next</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <br>
+                Set number of nodes per each layer:
+            </td>
+        </tr>
+        <tr id="nodesInputs">
+        </tr>
+    </tbody>
+    </table>
+
+    <script>
+    function setNodes() {
+        let nodesHTML = document.getElementById('nodesInputs').innerHTML;
+        let no_inputs = document.getElementById('no_inputs').value;
+
+        let nodesInputs = '';
+
+        if (typeof(parseInt(no_inputs)) === "number") {
+            for (let i = 0; i < no_inputs; i++) {
+                nodesInputs += `<td>
+                    <br>Layer: <strong>${i + 1}</strong>
+                </td>`;
+            }
+            document.getElementById('nodesInputs').innerHTML += nodesInputs;
+            console.log(nodesHTML);
+        } else {
+            console.error('Number of layers must be an integer');
+        }
+    }
+    </script>
+</body>
+</html>
