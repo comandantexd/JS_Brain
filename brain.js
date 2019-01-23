@@ -1,5 +1,5 @@
 class Neuron {
-    // array of inputs, array of
+    // number of inputs
     constructor(inputs) { //numeric
         this.inputs = [];
         this.weights = [];
