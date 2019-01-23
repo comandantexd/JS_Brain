@@ -145,17 +145,16 @@ class Network {
 }
 
 // JUST FOR EXAMPLE
-let lay = [3,6,1]; //[nodes_L0, nodes_L1]
-let net = new Network(lay, 2);
-
-let train = [
-    [1,1],
-    [1,0],
-    [0,1],
-    [0,0]
-];
-let targets = [0,1,1,0];
-
-net.train(train, targets);
-
+// let lay = [3,6,1]; //[nodes_L0, nodes_L1]
+// let net = new Network(lay, 2);
+//
+// let train = [
+//     [1,1],
+//     [1,0],
+//     [0,1],
+//     [0,0]
+// ];
+// let targets = [0,1,1,0];
+//
+// net.train(train, targets);
 //net.process(arr_of_inputs); for asking data
