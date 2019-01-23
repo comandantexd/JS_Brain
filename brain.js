@@ -25,7 +25,7 @@ class Neuron {
         //Passing the sigmoid activation function to the weighted average
         this.out = 1 / (1 + (Math.pow(Math.E, -this.net)));
 
-        return parseFloat(this.out);
+        return this.out;
     }
 }
 
@@ -34,8 +34,8 @@ class Neuron {
 class Network {
     constructor(layer, inputs) { // layer as an array, inputs as number of inputs
         this.ERROR_MARGIN = 0.0001;
-        this.LEARN_RATE = 0.03;
-        this.ITERATIONS = 100000;
+        this.LEARN_RATE = 0.1;
+        this.ITERATIONS = 10000;
 
         this.netOut = 0; //final output of the network
         this.netErr = 0; //total error of the network
@@ -71,7 +71,7 @@ class Network {
                 }
             }
         }
-        console.log(this.netOut);
+        return this.netOut;
     }
 
     train(inputs,target) {
@@ -141,6 +141,10 @@ class Network {
             }
 
         } while (this.netErr > this.ERROR_MARGIN && typeof(target) != "undefined" && ins < this.ITERATIONS);
+
+        if (ins >= this.ITERATIONS) {
+            return 0;
+        }
     }
 }
 

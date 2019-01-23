@@ -1,50 +1,223 @@
 <html>
 <head>
+    <script src="https://cdn.jsdelivr.net/gh/comandantexd/JS_Brain/brain.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+        #console {
+            background-color: black;
+            color: #14f700;
+        }
+    </style>
 </head>
 <body>
-    <table id="table">
-        <tbody id="tbody">
-        <tr>
-            <td>
-                Number of layers: <br>
-                <input id="no_inputs" type="text" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <button id="next" onclick="setNodes()">Next</button>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <br>
-                Set number of nodes per each layer:
-            </td>
-        </tr>
-        <tr id="nodesInputs">
-        </tr>
-    </tbody>
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <table id="table">
+                        <tbody id="tbody">
+                            <tr>
+                                <td>
+                                    layers: (2,1 [2 layers, 2 nodes in first, 1 in last])<br>
+                                    <input id="layers" type="text" />
+                                    <br><br>Number of inputs: <br>
+                                    <input id="no_inputs" type="number" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button onclick="builder.create()">CREATE!</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <br><br>
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    ITERATIONS
+                                                </td>
+                                                <td>
+                                                    ERROR MARGIN
+                                                </td>
+                                                <td>
+                                                    LEARN RATE
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input id="iterations" type="number" onchange="builder.set(this)"/>
+                                                </td>
+                                                <td>
+                                                    <input id="error_margin" type="number" onchange="builder.set(this)"/>
+                                                </td>
+                                                <td>
+                                                    <input id="learn_rate" type="number" onchange="builder.set(this)"/>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <button onclick="builder.showconfig()">SHOW CONFIG</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <br><br><br>
+                                    <button id="bt_train">TRAIN</button><button id="bt_test">TEST</button><br>
+                                    <br><strong id="warn">¡¡¡TRAINING MODE ENABLED!!!</strong><br>
+                                    <textarea id="inputs_test" style="width: 200px; height: 300px; display: none"></textarea>
+                                    <textarea id="inputs_train" style="width: 200px; height: 300px"></textarea>
+                                    <br><br>Target:<br>
+                                    <input id="target" type="text" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button onclick="builder.run()">RUN!</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    NETWORK LOSS: <input id="loss" readonly>
+                    <br><br>
+                    [<input id="overwrite" type="checkbox" onchange="logger.set(this)"> <label for="overwrite">Sobreescribir consola?</label>]
+                    <button onclick="logger.clear()">Clear console</button>
+                    <br>
+                    <textarea id="console" style="font-family: consolas;" cols="100" rows="40" readonly></textarea>
+                </td>
+            </tr>
+        </tbody>
     </table>
 
     <script>
-    function setNodes() {
-        let nodesHTML = document.getElementById('nodesInputs').innerHTML;
-        let no_inputs = document.getElementById('no_inputs').value;
+    class Logger {
+        constructor(display) {
+            this.overwrite = false;
+            this.display = display;
+            this.display.value = ">_ "
+        }
 
-        let nodesInputs = '';
+        set(checkbox) {
+            checkbox.checked ? this.overwrite = true : this.overwrite = false;
+        }
 
-        if (typeof(parseInt(no_inputs)) === "number") {
-            for (let i = 0; i < no_inputs; i++) {
-                nodesInputs += `<td>
-                    <br>Layer: <strong>${i + 1}</strong>
-                </td>`;
-            }
-            document.getElementById('nodesInputs').innerHTML += nodesInputs;
-            console.log(nodesHTML);
-        } else {
-            console.error('Number of layers must be an integer');
+        log(param) {
+            this.overwrite ? this.display.value = `${param}\n>_ `: this.display.value += `${param}\n>_ `;
+        }
+
+        clear() {
+            this.display.value = ">_ ";
         }
     }
+    logger = new Logger(document.getElementById('console'));
+    </script>
+
+
+    <script>
+    let trainMode = true;
+    let bt_train = document.getElementById('bt_train');
+    let bt_test = document.getElementById('bt_test');
+
+    bt_train.addEventListener('click', function () {
+        trainMode = true;
+        document.getElementById('inputs_train').style.display = 'block';
+        document.getElementById('inputs_test').style.display = 'none';
+        document.getElementById('warn').style.display = 'block';
+    });
+
+    bt_test.addEventListener('click', function () {
+        trainMode = false;
+        document.getElementById('inputs_train').style.display = 'none';
+        document.getElementById('inputs_test').style.display = 'block';
+        document.getElementById('warn').style.display = 'none';
+    });
+
+    class Builder {
+        create() {
+            let lay = document.getElementById('layers').value;
+            lay = lay.split(',');
+            lay.map( (f,i) => { lay[i] = parseInt(f) } );
+
+            let no_inputs = document.getElementById('no_inputs').value;
+
+            this.net = new Network(lay, no_inputs);
+            logger.log(`Neural network created succesfully!\n`+
+                `[LAYERS] ==> ${lay.length}\n` +
+                `[TOTAL NEURONS] ==> ${lay.reduce( (a, b) => {return a + b} )}`
+            );
+
+            this.settings = [
+                document.getElementById('iterations'),
+                document.getElementById('error_margin'),
+                document.getElementById('learn_rate')
+            ];
+
+            this.settings[0].value = this.net.ITERATIONS;
+            this.settings[1].value = this.net.ERROR_MARGIN;
+            this.settings[2].value = this.net.LEARN_RATE;
+        }
+
+        set(param) {
+            if (param.id == 'iterations') {
+                this.net.ITERATIONS = param.value;
+            } else if (param.id == 'error_margin') {
+                this.net.ERROR_MARGIN = param.value;
+            } else {
+                this.net.LEARN_RATE = param.value;
+            }
+        }
+
+        showconfig() {
+            logger.log(`[ITERATIONS] ==> ${this.net.ITERATIONS}\n` +
+                `[ERROR_MARGIN] ==> ${this.net.ERROR_MARGIN}\n` +
+                `[LEARN_RATE] ==> ${this.net.LEARN_RATE}`
+            );
+        }
+
+        run() {
+            let updateLoss;
+            let ins = new Array();
+            let target;
+            if (trainMode) {
+                logger.log('Training...');
+                let that = this;
+                setTimeout(function () {
+                    ins = document.getElementById('inputs_train').value.trim().split('\n');
+                    ins = ins.map( f => { return f.split(',') } );
+                    ins = ins.map( f => {
+                        return f.map( e => {
+                            return parseFloat(e);
+                        });
+                    });
+
+                    target = document.getElementById('target').value.trim().split(',');
+                    target = target.map( f => { return parseFloat(f) } );
+
+
+                    if (that.net.train(ins, target) == 0) {
+                        logger.log(`STOPPED!! Max iterations reached (${that.net.ITERATIONS})`);
+                        document.getElementById('loss').value = that.net.netErr;
+                    } else {
+                        logger.log('Finished!!');
+                        document.getElementById('loss').value = that.net.netErr;
+                    }
+                }, 10);
+            } else {
+                ins = document.getElementById('inputs_test').value.trim().split(',');
+                ins = ins.map( f => { return parseFloat(f) } );
+                target = parseFloat(document.getElementById('target').value.trim());
+
+                logger.log(`[${ins.join(', ')}] ==> ` + this.net.process(ins));
+            }
+        }
+    }
+
+    let builder = new Builder();
     </script>
 </body>
 </html>
