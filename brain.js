@@ -33,7 +33,7 @@ class Neuron {
 
 class Network {
     constructor(layer, inputs) { // layer as an array, inputs as number of inputs
-        this.ERROR_MARGIN = 0.0001;
+        this.ERROR_MARGIN = 0.001;
         this.LEARN_RATE = 0.1;
         this.ITERATIONS = 10000;
 

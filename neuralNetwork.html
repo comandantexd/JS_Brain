@@ -1,6 +1,6 @@
 <html>
 <head>
-    <script src="https://cdn.jsdelivr.net/gh/comandantexd/JS_Brain/brain.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/comandantexd/JS_Brain@master/brain.js"></script>
     <style>
         body {
             font-family: sans-serif;
@@ -21,9 +21,9 @@
                             <tr>
                                 <td>
                                     layers: (2,1 [2 layers, 2 nodes in first, 1 in last])<br>
-                                    <input id="layers" type="text" />
+                                    <input id="layers" type="text" value="3,1" />
                                     <br><br>Number of inputs: <br>
-                                    <input id="no_inputs" type="number" />
+                                    <input id="no_inputs" type="number" value="2" />
                                 </td>
                             </tr>
                             <tr>
@@ -70,8 +70,13 @@
                                     <br><strong id="warn">¡¡¡TRAINING MODE ENABLED!!!</strong><br>
                                     <textarea id="inputs_test" style="width: 200px; height: 300px; display: none"></textarea>
                                     <textarea id="inputs_train" style="width: 200px; height: 300px"></textarea>
+                                    <script>
+                                        window.addEventListener('load', function() {
+                                            document.getElementById('inputs_train').value = "1,1\n1,0\n0,1\n0,0";
+                                        });
+                                    </script>
                                     <br><br>Target:<br>
-                                    <input id="target" type="text" />
+                                    <input id="target" type="text" value="0,1,1,0" />
                                 </td>
                             </tr>
                             <tr>
